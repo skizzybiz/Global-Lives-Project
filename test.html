@@ -4,38 +4,15 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>Global Lives Video Test</title>
-    
+    <link rel="stylesheet" href="stylesheets/video.css" type="text/css" media="screen"/>
   </head>
   
   <body>
 
-    <!--     
-    <object width="425" height="355">
-      <param name="movie" value="http://www.youtube.com/v/ek2ZD2F8D8c?rel=1&amp;color1=0x2b405b&amp;
-        color2=0x6b8ab6&amp;border=1&amp;fs=1"></param>
-      <param name="allowFullScreen" value="true"></param>
-      <param name="allowScriptAccess" value="always"></param>
-      <embed src="http://www.youtube.com/v/ek2ZD2F8D8c?rel=1&amp;color1=0x2b405b&amp;color2=0x6b8ab6&amp;border=1&amp;fs=1"
-        type="application/x-shockwave-flash"
-        allowscriptaccess="always"
-        width="425" height="355" 
-        allowfullscreen="true"></embed>
-    </object>
-    
-    <object width="425" height="355">
-      <param name="movie" value="http://www.youtube.com/apiplayer?video_id=ek2ZD2F8D8c&amp;version=3&amp;enablejsapi=1&amp;playerapiid=ytplayer"></param>
-      <param name="allowFullScreen" value="true"></param>
-      <param name="allowScriptAccess" value="always"></param>
-      <embed src="http://www.youtube.com/apiplayer?video_id=ek2ZD2F8D8c&amp;version=3&amp;enablejsapi=1&amp;playerapiid=ytplayer"
-        type="application/x-shockwave-flash"
-        allowscriptaccess="always"
-        width="425" height="355" 
-        allowfullscreen="true"></embed>
-    </object>
-    -->
-    
+    <!-- Based on sample code from http://code.google.com/apis/youtube/js_api_reference.html -->
     <script type="text/javascript" src="javascripts/swfobject.js"></script>    
-    <div style="height: 455px; overflow: hidden">
+    <!-- Hack to hide YouTube controls while still keeping annotations -->
+    <div class="video-container">
       <div id="ytapiplayer">
         You need Flash player 8+ and JavaScript enabled to view this video.
       </div>
@@ -45,15 +22,26 @@
 
       var params = { allowScriptAccess: "always" };
       var atts = { id: "myytplayer" };
-      swfobject.embedSWF("http://www.youtube.com/v/ivEDEf4Bx-o?enablejsapi=1&playerapiid=myytplayer", 
-                         "ytapiplayer", "320", "480", "8", null, null, params, atts);
+      var uri = "http://www.youtube.com/v/ivEDEf4Bx-o?enablejsapi=1&playerapiid=myytplayer";
+      swfobject.embedSWF(uri, 
+        "ytapiplayer", "320", "480", "8", null, null, params, atts);
       
       function onYouTubePlayerReady(playerId) {
         ytplayer = document.getElementById(playerId);
         console.log(ytplayer);
         ytplayer.playVideo();
+        
+        // This callback has to be referenced by name, which poses a problem
+        // with multiple videos on a page that may change frequently.
+        // One idea: make a number of callback functions, ytStateChange1 through
+        // ytStateChangeN, and have each one index into a global array and call
+        // a function on the resulting object.
+        ytplayer.addEventListener("onStateChange", "ytStateChange");
       }
       
+      function ytStateChange(state) {
+        console.log("Player's new state: " + state);
+      }
       
     </script>
     

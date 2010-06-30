@@ -1,0 +1,5 @@
+.video-container {
+  /* Subtract 25px from the video height to hide YouTube's controls */
+  height: 455px;
+  overflow: hidden;
+}
