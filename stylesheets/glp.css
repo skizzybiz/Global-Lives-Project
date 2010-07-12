@@ -5,15 +5,25 @@
   position: relative;
   width: 10em;
   height: 15em;
+  
   background: #333;
   background-image: -webkit-gradient(linear, left top, 10 bottom,
     from(rgba(255,255,255, 0.3)),
     color-stop(50%, rgba(255,255,255, 0.1)),
     color-stop(51%, rgba(255,255,255, 0.0)),
     to(rgba(255,255,255, 0.0)) );
+  background-image: -moz-linear-gradient(-87deg,
+    rgba(255,255,255, 0.3),
+    rgba(255,255,255, 0.1) 50%,
+    rgba(255,255,255, 0.0) 51%,
+    rgba(255,255,255, 0.0) );
+  
   border: 3px solid #333;
   -webkit-border-radius: 0.6em;
+  -moz-border-radius: 0.6em;
+  
   -webkit-box-shadow: 0 0.1em 0.2em rgba(0,0,0, 0.5);
+  -moz-box-shadow: 0 0.1em 0.2em rgba(0,0,0, 0.5);
 }
 
 .GLP-TimelineControl .clock-face {
@@ -25,6 +35,7 @@
   height: 8em;
 /*  border: 1px solid #333;*/
   -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
   background: white;
 }
 
@@ -35,6 +46,7 @@
   width: 8em;
   height: 8em;
   -webkit-border-radius: 4em;
+  -moz-border-radius: 4em;
   overflow: hidden;
 }
 
@@ -45,6 +57,7 @@
   width: 4em;
   height: 4em;
   -webkit-transform-origin: left bottom;
+  -moz-transform-origin: left bottom;
 }
 
 .GLP-TimelineControl .clock-face > .progress > .on { background: #8581BC; }
@@ -60,9 +73,10 @@
   margin-top: -0.6em;
   margin-left: -0.6em;
   -webkit-border-radius: 0.6em;
+  -moz-border-radius: 0.6em;
   background: #F2B9F7;
-/*  -webkit-box-shadow: 0 0 0.2em rgba(0,0,0, 0.5);*/
   -webkit-transform-origin: 0.6em 4.6em;
+  -moz-transform-origin: 0.6em 4.6em;
   cursor: pointer;
 }
 
@@ -70,6 +84,7 @@
   border-color: white;
   background: #EA80F4;
   -webkit-box-shadow: 0 0 0.5em rgba(255,255,255, 0.8);
+  -moz-box-shadow: 0 0 0.5em rgba(255,255,255, 0.8);
 }
 
 .GLP-TimelineControl .digital-time {
@@ -79,12 +94,20 @@
   margin: 0.4em;
   border: 1px solid #111;
   -webkit-border-radius: 0.1em;
+  -moz-border-radius: 0.1em;
+  
   background: #111;
   background-image: -webkit-gradient(linear, left top, 2 bottom,
     from(rgba(255,255,255, 0.3)),
     color-stop(50%, rgba(255,255,255, 0.25)),
     color-stop(51%, rgba(255,255,255, 0.0)),
     to(rgba(255,255,255, 0.0)) );
+  background-image: -moz-linear-gradient(-87deg,
+    rgba(255,255,255, 0.3),
+    rgba(255,255,255, 0.25) 50%,
+    rgba(255,255,255, 0.0) 51%,
+    rgba(255,255,255, 0.0) );
+  
   text-align: center;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 2.5em;

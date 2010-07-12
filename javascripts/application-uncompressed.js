@@ -72,14 +72,16 @@ GLP.TimelineControl = Class.create({
       x: (offset.left + (dim.width / 2)),
       y: (offset.top  + (dim.height / 2))
     };
-    // console.log("clockX: " + this.clockOffset.left + ", clockY: " + this.clockOffset.top);
+    // console.log("clock x: " + this.clockCenter.x + ", y: " + this.clockCenter.y);
   },
   
   handleDrag: function(evt) {
     if (!this.handleGrabbed) return;
+    // console.log(evt);
+    // console.log("event x: " + evt.clientX + ", y: " + evt.clientY);
     var vector = {
-      x: (evt.x - this.clockCenter.x),
-      y: (evt.y - this.clockCenter.y)
+      x: (evt.clientX - this.clockCenter.x),
+      y: (evt.clientY - this.clockCenter.y)
     };
     // The angle will be positive going CCW from a vector pointing down,
     // and negative going CW.
@@ -98,6 +100,7 @@ GLP.TimelineControl = Class.create({
     this.angle = angle;
     this.elapsed = angle / 360;
     this.handle.setStyle({"-webkit-transform": "rotate(" + this.angle + "deg)"});
+    this.handle.style.setProperty("-moz-transform", "rotate(" + this.angle + "deg)", "");
     this.changeProgress();
     this.changeDigitalTime();
   },
@@ -130,7 +133,7 @@ GLP.TimelineControl = Class.create({
     if (options.mask) src = "images/clock-progress-arc-mask.png";
     var elem = new Element('img', {
       src: src,
-      style: "-webkit-transform: rotate(" + angle + "deg)"
+      style: "-webkit-transform: rotate(" + angle + "deg); -moz-transform: rotate(" + angle + "deg)"
     });
     this.progress.insert(elem);
   },
