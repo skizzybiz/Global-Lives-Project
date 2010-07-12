@@ -1,0 +1,17 @@
+global options:
+
+application:
+  version: 1.0.0
+  notice: ../NOTICE
+  outputFolder: ..
+  include:
+    - ../init.js
+    - ../collapsible.js
+    - ../application
+    - ../effects
+    - ../events
+    - ../scheduling
+    - ../tests
+    - ../testing_support.js
+  
+

@@ -1,0 +1,92 @@
+/**************************************************/
+/* Clock controls */
+
+.GLP-TimelineControl.clock {
+  position: relative;
+  width: 10em;
+  height: 15em;
+  background: #333;
+  background-image: -webkit-gradient(linear, left top, 10 bottom,
+    from(rgba(255,255,255, 0.3)),
+    color-stop(50%, rgba(255,255,255, 0.1)),
+    color-stop(51%, rgba(255,255,255, 0.0)),
+    to(rgba(255,255,255, 0.0)) );
+  border: 3px solid #333;
+  -webkit-border-radius: 0.6em;
+  -webkit-box-shadow: 0 0.1em 0.2em rgba(0,0,0, 0.5);
+}
+
+.GLP-TimelineControl .clock-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 1em;
+  width: 8em;
+  height: 8em;
+  border: 1px solid #333;
+  -webkit-border-radius: 4em;
+  background: white;
+}
+
+.GLP-TimelineControl .clock-face > .progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8em;
+  height: 8em;
+  -webkit-border-radius: 4em;
+  overflow: hidden;
+}
+
+.GLP-TimelineControl .clock-face > .progress > img,
+.GLP-TimelineControl .clock-face > .progress > div {
+  position: absolute;
+  left: 4em;
+  width: 4em;
+  height: 4em;
+  -webkit-transform-origin: left bottom;
+}
+
+.GLP-TimelineControl .clock-face > .progress > .on { background: #8581BC; }
+.GLP-TimelineControl .clock-face > .progress > .off { background: white; }
+
+.GLP-TimelineControl .clock-face > .handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1em;
+  height: 1em;
+  border: 0.1em solid #666;
+  margin-top: -0.6em;
+  margin-left: -0.6em;
+  -webkit-border-radius: 0.2em;
+  background: #F2B9F7;
+/*  -webkit-box-shadow: 0 0 0.2em rgba(0,0,0, 0.5);*/
+  -webkit-transform-origin: 0.6em 4.6em;
+  cursor: pointer;
+}
+
+.GLP-TimelineControl .clock-face > .handle.active {
+  border-color: white;
+  background: #EA80F4;
+  -webkit-box-shadow: 0 0 0.5em rgba(255,255,255, 0.8);
+}
+
+.GLP-TimelineControl .digital-time {
+  position: absolute;
+  bottom: 0;
+  width: 3.2em;
+  margin: 0.4em;
+  border: 1px solid #111;
+  -webkit-border-radius: 0.1em;
+  background: #111;
+  background-image: -webkit-gradient(linear, left top, 2 bottom,
+    from(rgba(255,255,255, 0.3)),
+    color-stop(50%, rgba(255,255,255, 0.25)),
+    color-stop(51%, rgba(255,255,255, 0.0)),
+    to(rgba(255,255,255, 0.0)) );
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 2.5em;
+  color: white;
+}

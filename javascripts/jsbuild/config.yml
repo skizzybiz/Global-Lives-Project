@@ -1,0 +1,11 @@
+global options:
+
+application:
+  version: 1.0.0
+  notice: ../NOTICE
+  outputFolder: ..
+  include:
+    - ../init.js
+    - ../video
+  
+

@@ -4,47 +4,39 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>Global Lives Video Test</title>
-    <link rel="stylesheet" href="stylesheets/video.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/glp.css" type="text/css" media="screen"/>
+    <script type="text/javascript" charset="utf-8" src="javascripts/prototype.js"></script>
+    <script type="text/javascript" charset="utf-8" src="javascripts/application-uncompressed.js"></script>
   </head>
   
   <body>
-
-    <!-- Based on sample code from http://code.google.com/apis/youtube/js_api_reference.html -->
-    <script type="text/javascript" src="javascripts/swfobject.js"></script>    
-    <!-- Hack to hide YouTube controls while still keeping annotations -->
-    <div class="video-container">
-      <div id="ytapiplayer">
-        You need Flash player 8+ and JavaScript enabled to view this video.
-      </div>
-    </div>
-
-    <script type="text/javascript">
-
-      var params = { allowScriptAccess: "always" };
-      var atts = { id: "myytplayer" };
-      var uri = "http://www.youtube.com/v/ivEDEf4Bx-o?enablejsapi=1&playerapiid=myytplayer";
-      swfobject.embedSWF(uri, 
-        "ytapiplayer", "320", "480", "8", null, null, params, atts);
-      
-      function onYouTubePlayerReady(playerId) {
-        ytplayer = document.getElementById(playerId);
-        console.log(ytplayer);
-        ytplayer.playVideo();
-        
-        // This callback has to be referenced by name, which poses a problem
-        // with multiple videos on a page that may change frequently.
-        // One idea: make a number of callback functions, ytStateChange1 through
-        // ytStateChangeN, and have each one index into a global array and call
-        // a function on the resulting object.
-        ytplayer.addEventListener("onStateChange", "ytStateChange");
-      }
-      
-      function ytStateChange(state) {
-        console.log("Player's new state: " + state);
-      }
-      
-    </script>
     
+    <div class="GLP-TimelineControl clock">
+      <div class="clock-face" data-elapsed="0.536">
+        <div class="progress">
+          <img src="images/clock-progress-arc.png" style="-webkit-transform: rotate(0deg)">
+          <img src="images/clock-progress-arc.png" style="-webkit-transform: rotate(90deg)">
+          <img src="images/clock-progress-arc.png" style="-webkit-transform: rotate(95deg)">
+        </div>
+        <div class="handle" style="-webkit-transform: rotate(185deg)"></div>
+      </div>
+      <div class="digital-time">12:52</div>
+    </div>
+    
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
+    <p>Test</p>
     
   </body>
   
