@@ -23,7 +23,7 @@
   margin: 1em;
   width: 8em;
   height: 8em;
-  border: 1px solid #333;
+/*  border: 1px solid #333;*/
   -webkit-border-radius: 4em;
   background: white;
 }
@@ -59,7 +59,7 @@
   border: 0.1em solid #666;
   margin-top: -0.6em;
   margin-left: -0.6em;
-  -webkit-border-radius: 0.2em;
+  -webkit-border-radius: 0.6em;
   background: #F2B9F7;
 /*  -webkit-box-shadow: 0 0 0.2em rgba(0,0,0, 0.5);*/
   -webkit-transform-origin: 0.6em 4.6em;
