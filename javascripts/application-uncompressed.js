@@ -127,7 +127,7 @@ GLP.TimelineControl = Class.create({
   insertProgressWedge: function(angle, options) {
     if (!options) options = {};
     var src = "images/clock-progress-arc.png";
-    if (options.mask) src = "images/clock-progress-arc-off.png";
+    if (options.mask) src = "images/clock-progress-arc-mask.png";
     var elem = new Element('img', {
       src: src,
       style: "-webkit-transform: rotate(" + angle + "deg)"
