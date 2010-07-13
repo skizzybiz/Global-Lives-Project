@@ -42,6 +42,7 @@
     
     loadScript("init.js");
     loadScript("video/base.js");
+    loadScript("video/html5_video.js");
     loadScript("video/timeline_control.js");
     loadScript("video/youtube.js");
     

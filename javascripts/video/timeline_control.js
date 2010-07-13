@@ -1,4 +1,7 @@
 /*jsl:import ../init.js*/
+/*jsl:import base.js*/
+
+// Add IE support: http://www.useragentman.com/blog/2010/03/09/cross-browser-css-transforms-even-in-ie/
 
 GLP.TimelineControl = Class.create({
   
@@ -13,11 +16,15 @@ GLP.TimelineControl = Class.create({
     this.assign('handle',       '.handle',        this.clockFace);
     this.assign('progress',     '.progress',      this.clockFace);
     this.assign('digitalTime',  '.digital-time');
+    this.assign('controls',     '.controls');
+    this.assign('playpause',    '.playpause',     this.controls);
     
     this.handleGrabbed = false;
     this.handle.observe('mousedown',  this.handleGrab.bind(this));
     document.observe('mousemove',  this.handleDrag.bind(this));
     document.observe('mouseup',    this.handleRelease.bind(this));
+    
+    this.playpause.observe('click', this.pressPlayPause.bind(this));
     
     this.totalTime = { hours: 24, minutes: 0, decimal: 24.0 };
   },
@@ -70,10 +77,18 @@ GLP.TimelineControl = Class.create({
   updateFromAngle: function(angle) {
     this.angle = angle;
     this.elapsed = angle / 360;
+    this.update();
+  },
+  
+  update: function() {
     this.handle.setStyle({"-webkit-transform": "rotate(" + this.angle + "deg)"});
     this.handle.style.setProperty("-moz-transform", "rotate(" + this.angle + "deg)", "");
     this.changeProgress();
     this.changeDigitalTime();
+    
+    GLP.Videos.each(function(video) {
+      video.seek({hours: this.currentTime.hours, minutes: this.currentTime.minutes});
+    }.bind(this));
   },
   
   changeProgress: function() {
@@ -116,6 +131,17 @@ GLP.TimelineControl = Class.create({
     var m = this.currentTime.minutes  = Math.round((d - h) * 60);
     
     this.digitalTime.innerHTML = h.toPaddedString(2) + ":" + m.toPaddedString(2);
+  },
+  
+  pressPlayPause: function(evt) {
+    evt.stop();
+    GLP.Videos.each(function(video) {
+      if (video.togglePlay() === "playing") {
+        this.playpause.select("img").first().src = "images/pause.png";
+      } else {
+        this.playpause.select("img").first().src = "images/play.png";
+      }
+    }.bind(this));
   }
   
 });
@@ -123,7 +149,7 @@ GLP.TimelineControl = Class.create({
 GLP.TimelineControls = [];
 
 document.observe("dom:loaded", function(evt) {
-  $$('.GLP-TimelineControl').each(function(container) {
+  $$('.GLP.TimelineControl').each(function(container) {
     GLP.TimelineControls.push(new GLP.TimelineControl(container));
   });
 });

@@ -1,10 +1,10 @@
 /**************************************************/
 /* Clock controls */
 
-.GLP-TimelineControl.clock {
+.GLP.TimelineControl.clock {
   position: relative;
   width: 10em;
-  height: 15em;
+/*  height: 15em;*/
   
   background: #333;
   background-image: -webkit-gradient(linear, left top, 10 bottom,
@@ -26,11 +26,9 @@
   -moz-box-shadow: 0 0.1em 0.2em rgba(0,0,0, 0.5);
 }
 
-.GLP-TimelineControl .clock-face {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin: 1em;
+.GLP.TimelineControl .clock-face {
+  position: relative;
+  margin: 1em auto;
   width: 8em;
   height: 8em;
 /*  border: 1px solid #333;*/
@@ -39,7 +37,7 @@
   background: white;
 }
 
-.GLP-TimelineControl .clock-face > .progress {
+.GLP.TimelineControl .clock-face > .progress {
   position: absolute;
   top: 0;
   left: 0;
@@ -50,8 +48,8 @@
   overflow: hidden;
 }
 
-.GLP-TimelineControl .clock-face > .progress > img,
-.GLP-TimelineControl .clock-face > .progress > div {
+.GLP.TimelineControl .clock-face > .progress > img,
+.GLP.TimelineControl .clock-face > .progress > div {
   position: absolute;
   left: 4em;
   width: 4em;
@@ -60,10 +58,10 @@
   -moz-transform-origin: left bottom;
 }
 
-.GLP-TimelineControl .clock-face > .progress > .on { background: #8581BC; }
-.GLP-TimelineControl .clock-face > .progress > .off { background: white; }
+.GLP.TimelineControl .clock-face > .progress > .on { background: #8581BC; }
+.GLP.TimelineControl .clock-face > .progress > .off { background: white; }
 
-.GLP-TimelineControl .clock-face > .handle {
+.GLP.TimelineControl .clock-face > .handle {
   position: absolute;
   top: 0;
   left: 50%;
@@ -80,18 +78,17 @@
   cursor: pointer;
 }
 
-.GLP-TimelineControl .clock-face > .handle.active {
+.GLP.TimelineControl .clock-face > .handle.active {
   border-color: white;
   background: #EA80F4;
   -webkit-box-shadow: 0 0 0.5em rgba(255,255,255, 0.8);
   -moz-box-shadow: 0 0 0.5em rgba(255,255,255, 0.8);
 }
 
-.GLP-TimelineControl .digital-time {
-  position: absolute;
-  bottom: 0;
+.GLP.TimelineControl .digital-time {
+  position: relative;
   width: 3.2em;
-  margin: 0.4em;
+  margin: 0.5em auto;
   border: 1px solid #111;
   -webkit-border-radius: 0.1em;
   -moz-border-radius: 0.1em;
@@ -112,4 +109,20 @@
   font-family: Helvetica, Arial, sans-serif;
   font-size: 2.5em;
   color: white;
+}
+
+.GLP.TimelineControl .controls {
+  text-align: center;
+  font-size: 2em;
+  margin: 0.5em auto;
+  color: white;
+}
+
+.GLP.TimelineControl .controls > a {
+  color: white;
+  text-decoration: none;
+}
+
+.GLP.TimelineControl .assets {
+  display: none;
 }
