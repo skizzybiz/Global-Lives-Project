@@ -128,9 +128,12 @@ GLP.TimelineControl = Class.create({
     this.currentTime = {};
     var d = this.currentTime.decimal  = this.elapsed * this.totalTime.decimal;
     var h = this.currentTime.hours    = Math.floor(d);
-    var m = this.currentTime.minutes  = Math.round((d - h) * 60);
+    var dm = (d - h) * 60;
+    var m = this.currentTime.minutes  = Math.floor(dm);
+    var s = this.currentTime.seconds  = Math.round((dm - m) * 60);
     
-    this.digitalTime.innerHTML = h.toPaddedString(2) + ":" + m.toPaddedString(2);
+    this.digitalTime.innerHTML = h.toPaddedString(2) + ":" + m.toPaddedString(2) +
+      ":" + s.toPaddedString(2);
   },
   
   pressPlayPause: function(evt) {

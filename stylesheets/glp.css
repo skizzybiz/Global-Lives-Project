@@ -87,8 +87,9 @@
 
 .GLP.TimelineControl .digital-time {
   position: relative;
-  width: 3.2em;
-  margin: 0.5em auto;
+  font-size: 2.2em;
+  width: 4.2em;
+  margin: 0.7em auto;
   border: 1px solid #111;
   -webkit-border-radius: 0.1em;
   -moz-border-radius: 0.1em;
@@ -107,14 +108,13 @@
   
   text-align: center;
   font-family: Helvetica, Arial, sans-serif;
-  font-size: 2.5em;
   color: white;
 }
 
 .GLP.TimelineControl .controls {
   text-align: center;
   font-size: 2em;
-  margin: 0.5em auto;
+  margin: 0.4em auto;
   color: white;
 }
 
