@@ -1,0 +1,45 @@
+This project is currently a prototype for the Global Lives Project video player. The aim is to have a flexible interface for browsing through 24 hours of video footage of a single subject. It should be so effortless to view and to scrub around for different parts of their daily life that the viewer gets drawn into watching and starts to feel like they are right there sharing in someone else's life.
+
+At the moment, the way to try it out is to check out the project and open test.html in a browser. There is also a version that is live on the web at http://skizzy.biz/Global-Lives-Project/test.html .
+
+Here are the features that we want to have in the final product:
+
+Clock Face
+==========
+
+The clock face allows you to control what part of day you are watching, in broad strokes. Set to the side of the page, it can be used to control a single video or a grid full of videos of different people all doing their thing at a particular time of day.
+
+The clock face isn't a normal 12-hour clock, but rather more of like progress meter for the elapsed video. It doesn't have numbers or ticks like a regular clock -- instead, a readout below the clock shows the time in digital form, down to the second. The face is light colored, and the elapsed time is colored in as a darker color. At the edge of the face, a small handle indicates the current time, and you can grab the handle to change to a different time. As you drag the handle around the edge, the digital time readout shows where the video will start to play when you let go.
+
+Below the clock face and the digital time, there is a centered play button, and fast forward and rewind buttons to either side. When you click the fast forward, it starts moving at double time, and a second click bumps it up to 4x time, and possibly another click makes it 8x time before a final click brings it back to normal playback speed. The rewind works the same.
+
+Finally, at the bottom of the control panel, there is a jog shuttle. Not the most familiar control for most users, it should nevertheless be pretty intuitive as soon as they start to play with it. It's designed to work similarly to the jog shuttles that are found on professional video editing rigs. It consists of a handle on a rail, not unlike a volume control. The handle always rests in the center position. If you grab it, the video will pause. Drag it to the right, and the video will slowly start to scan forward, increasing exponentially in speed up to a limit (8x?). Dragging to the left scans in reverse. Releasing the control immediately sends it back to the center and pauses the video. This control should give users much more fine-grained control over their position in the video without the more traditional scrubber bar that sits at the bottom of most online videos (more on that later).
+
+Video Player
+============
+
+The video player is barebones, visually. A rectangular video without adornment hovers slightly over the page. One video might be centered in the page, or two or more videos can be distributed across the page in a grid. When the viewer clicks play, pause, fast forward, or rewind, an icon flashes briefly in the center of each video.
+
+The video player lacks integrated controls out of necessity. In order to serve up 24 hours of video on the web, the video has to be cut up into smaller chunks of about 10 minutes. What would an integrated timeline indicate in that context? Does the handle progress from left to right every 10 minutes? This would be the default behavior if we used any pre-existing video player controls, but it would be misleading to the viewer. If, on the other hand, we engineered a timeline that represents all 24 hours instead of 10 minutes, then we lose granularity, like with a scroll bar in a window that displays a 1000-page document. Grabbing and dragging such a control becomes an exercise in frustration. 
+
+Furthermore, if there are multiple videos on the page, it might surprise the viewer when all of the videos move in unison. Then again, maybe it won't. But if we keep the default controls that show only 10 minutes at a time, then what happens when the videos aren't in precise 10 minute chunks? Now each timeline is showing a different position.
+
+Even though there won't be controls in the video, we will need to display other information. We'll need to show subtitles and perhaps tags -- a Javascript library can display these text-only bits of information after reading their timecodes from a file.
+
+World Map
+=========
+
+When someone first visits globallives.org, they won't see a page full of videos. Instead, they'll see a world map with each of the 10 subjects portrayed in small circular portraits over their hometowns. Click on a portrait, and the page starts to spring to life: the portrait highlights, grows a little in size, displays a name and a location, and what previously looked like a cryptic circle on the right side of the page (the clock face, but simplified) sprouts new controls and a timecode and play button, indicating that the viewer can play something. Click the portrait again, and the page returns to its previous state. Click another portrait instead, and it, too, highlights and grows. Once the desired portraits are highlighted, a click on the play button or a tweak of the clock face's handle will transform the portraits again. This time, they morph into videos as they slide into an even grid, taking up as much space as they can comfortably fit on the page.
+
+At this point, I'm not sure whether to have another control to reset the page to its dormant state or to use the pause button as a cue to morph the videos back into portraits.
+
+The Nitty Gritty
+================
+
+All of this fancy interface is easy enough to build for an extremely high-bandwidth connection when it'll never take more than a fraction of a second to start playing a portion of video, but what happens in the real world with variable bandwidth rates and long lag times?
+
+First off, there should be a resolution control. It can show choices like YouTube does -- 360p by default, then 480p and 720p for high-bandwidth users, and perhaps a Mobile setting for very low-bandwidth users. It should remember this setting. We may also want to indicate somehow which portion of video is downloaded so that the user can determine which resolution setting is best, but just like with the in-video timeline, there's a problem with granularity vs clarity.
+
+That still won't be able to handle the rapid scrubbing around the clock face that many users will surely be tempted to try. For that, we can pre-process the footage to create a thumbnail for every minute of video, then load those thumbnails into the page so that they'll be available when the user scrubs into an unloaded portion of video. 24 * 60 = 1,440 thumbnails, which is a lot of images to load into a page -- a web browser is generally only capable of loading 8 images at a time, and even fast internet connections frequently have a large lag time between when a request for an image is made and when it starts to download. To address this, we can array the thumbnails into 4x4 or larger grids, so that there are 16 or more thumbnails per image file, and a bit of tricky programming can display only the correct thumbnail for a given timecode.
+
+In addition to varying internet connection speeds, users have browsers of varying capabilities. We want to try to use HTML5 as the basis for the default video player, but for less capable browsers, we can use a Flash fallback. Fortunately, with such simple video player requirements, our options are wide open here. We can use YouTube as a fallback, use one of the many Flash video players available for free, or probably even write our own if it turns out that's the most effective solution.
