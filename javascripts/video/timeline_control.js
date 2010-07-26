@@ -25,8 +25,9 @@ GLP.TimelineControl = Class.create({
     document.observe('mouseup',    this.handleRelease.bind(this));
     
     this.playpause.observe('click', this.pressPlayPause.bind(this));
+    this.timecodeObserver = this.checkTimecode.bind(this);
     
-    this.totalTime = { hours: 24, minutes: 0, decimal: 24.0 };
+    this.waitForVideoMetadata();
   },
   
   assign: function(variable, selector, container) {
@@ -38,6 +39,24 @@ GLP.TimelineControl = Class.create({
       throw("SelectorNotFound");
     }
     return this[variable];
+  },
+  
+  waitForVideoMetadata: function() {
+    this.totalDuration = 0; // in seconds
+    // First pass to get any metadata that may have already loaded
+    GLP.Videos.each(this.updateTotalDurationFromVideo.bind(this));
+    document.observe("video:metadataloaded", this.videoMetadataLoaded.bind(this));
+  },
+  
+  videoMetadataLoaded: function(evt) {
+    this.updateTotalDurationFromVideo(evt.element().GLP.Video);
+  },
+  
+  updateTotalDurationFromVideo: function(video) {
+    if (video.metadata && video.metadata.totalDuration > this.totalDuration) {
+      this.totalDuration = video.metadata.totalDuration;
+      console.log("updating total duration to " + this.totalDuration);
+    }
   },
   
   handleGrab: function(evt) {
@@ -71,24 +90,38 @@ GLP.TimelineControl = Class.create({
   },
   
   handleRelease: function(evt) {
-    this.handleGrabbed = false;
+    if (this.handleGrabbed) {
+      this.handleDrag(evt);
+      this.handleGrabbed = false;
+      this.update();
+    }
   },
   
   updateFromAngle: function(angle) {
     this.angle = angle;
     this.elapsed = angle / 360;
+    this.currentTime = {};
+    var d = this.currentTime.decimal  = this.elapsed * this.totalDuration;
+    var h = this.currentTime.hours    = Math.floor(d / 3600);
+    var m = this.currentTime.minutes  = Math.floor(d / 60 - h * 60);
+    var s = this.currentTime.seconds  = Math.floor(d - m * 60 - h * 3600);
     this.update();
   },
   
-  update: function() {
+  update: function(options) {
+    if (typeof(options) === 'undefined') options = {};
+    if (typeof(options.video) === 'undefined') options.video = true;
+    if (typeof(options.digitalTime) === "undefined") options.digitalTime = true;
     this.handle.setStyle({"-webkit-transform": "rotate(" + this.angle + "deg)"});
     this.handle.style.setProperty("-moz-transform", "rotate(" + this.angle + "deg)", "");
     this.changeProgress();
-    this.changeDigitalTime();
+    if (options.digitalTime) this.changeDigitalTime();
     
-    GLP.Videos.each(function(video) {
-      video.seek({hours: this.currentTime.hours, minutes: this.currentTime.minutes});
-    }.bind(this));
+    if (!this.handleGrabbed && options.video) {
+      GLP.Videos.each(function(video) {
+        video.seek(this.currentTime);
+      }.bind(this));
+    }
   },
   
   changeProgress: function() {
@@ -125,26 +158,37 @@ GLP.TimelineControl = Class.create({
   },
   
   changeDigitalTime: function() {
-    this.currentTime = {};
-    var d = this.currentTime.decimal  = this.elapsed * this.totalTime.decimal;
-    var h = this.currentTime.hours    = Math.floor(d);
-    var dm = (d - h) * 60;
-    var m = this.currentTime.minutes  = Math.floor(dm);
-    var s = this.currentTime.seconds  = Math.round((dm - m) * 60);
-    
-    this.digitalTime.innerHTML = h.toPaddedString(2) + ":" + m.toPaddedString(2) +
-      ":" + s.toPaddedString(2);
+    this.digitalTime.innerHTML = this.currentTime.hours.toPaddedString(2) + 
+      ":" + this.currentTime.minutes.toPaddedString(2) +
+      ":" + this.currentTime.seconds.toPaddedString(2);
   },
   
   pressPlayPause: function(evt) {
     evt.stop();
     GLP.Videos.each(function(video) {
       if (video.togglePlay() === "playing") {
+        this.playing = true;
         this.playpause.select("img").first().src = "images/pause.png";
+        this.observeVideoProgress();
       } else {
         this.playpause.select("img").first().src = "images/play.png";
+        this.playing = false;
       }
     }.bind(this));
+  },
+  
+  checkTimecode: function() {
+    if (!this.handleGrabbed) {
+      var t = this.currentTime = GLP.Videos.first().timecode();
+      this.elapsed = t.decimal / this.totalDuration;
+      this.angle = this.elapsed * 360;
+      this.update({ video: false });
+    }
+    if (this.playing) window.setTimeout(this.timecodeObserver, 200);
+  },
+  
+  observeVideoProgress: function() {
+    window.setTimeout(this.timecodeObserver, 200);
   }
   
 });

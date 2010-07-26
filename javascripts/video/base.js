@@ -8,6 +8,8 @@ GLP.Video = Class.create({
       throw "ContainerNotGiven";
     }
     this.container = container;
+    if (typeof(this.container.GLP) === "undefined") this.container.GLP = {};
+    this.container.GLP.Video = this;
     Object.extend(this, GLP.Video.HTML5);
     this.setup();
   },
@@ -35,6 +37,12 @@ GLP.Video = Class.create({
   },
   
   setPlaybackRate: function(rate) {
+    throw "MethodNotImplemented";
+  },
+  
+  // Returns { hours: HH, minutes: MM, seconds: SS, milliseconds: 0.123, decimal: ... }
+  // 'decimal' is the decimal time in seconds
+  timecode: function() {
     throw "MethodNotImplemented";
   }
   

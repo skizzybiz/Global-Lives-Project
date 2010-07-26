@@ -1,0 +1,15 @@
+{
+  "totalDuration": 3370.0,
+  "segments": [
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 },
+    { "uri": "sample.mp4", "duration": 337.0 }
+  ]
+}

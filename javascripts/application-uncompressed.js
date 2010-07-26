@@ -31,6 +31,8 @@ GLP.Video = Class.create({
       throw "ContainerNotGiven";
     }
     this.container = container;
+    if (typeof(this.container.GLP) === "undefined") this.container.GLP = {};
+    this.container.GLP.Video = this;
     Object.extend(this, GLP.Video.HTML5);
     this.setup();
   },
@@ -59,6 +61,12 @@ GLP.Video = Class.create({
   
   setPlaybackRate: function(rate) {
     throw "MethodNotImplemented";
+  },
+  
+  // Returns { hours: HH, minutes: MM, seconds: SS, milliseconds: 0.123, decimal: ... }
+  // 'decimal' is the decimal time in seconds
+  timecode: function() {
+    throw "MethodNotImplemented";
   }
   
 });
@@ -76,8 +84,31 @@ document.observe('dom:loaded', function() {
 
 GLP.Video.HTML5 = {
   setup: function() {
-    this.video = this.container.select("video").first();
-    console.log("GLP.Video.HTML5 setup()");
+    this.metadata_uri = this.container.getAttribute("data-html5");
+    console.log(this.metadata_uri);
+    new Ajax.Request(this.metadata_uri, {
+      method: "get",
+      onSuccess: this.metadataRequestSuccess.bind(this),
+      onFailure: this.metadataRequestFailure.bind(this)
+    });
+  },
+  
+  metadataRequestSuccess: function(response) {
+    this.metadata = response.responseJSON;
+    var start = 0;
+    this.metadata.segments.each(function(segment) {
+      segment.start = start;
+      segment.end = start + segment.duration;
+      console.log("segment: " + segment.start + " - " + segment.end);
+      start += segment.duration;
+    });
+    this.container.fire("video:metadataloaded");
+    this.video = new Element("video", { src: this.metadata.segments[0].uri });
+    this.container.insert(this.video);
+  },
+  
+  metadataRequestFailure: function(response) {
+    window.alert("Failed to load video: " + response.responseText);
   },
   
   play: function() {
@@ -109,6 +140,23 @@ GLP.Video.HTML5 = {
   
   setPlaybackRate: function(rate) {
     this.video.playbackRate = rate;
+  },
+  
+  timecode: function() {
+    // console.log("HTML5 Video timecode()");
+    var t = this.video.currentTime;
+    var tc = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0, decimal: t };
+    tc.seconds = Math.floor(t);
+    tc.milliseconds = t - tc.seconds;
+    if (tc.seconds > 59) {
+      tc.minutes = Math.floor(tc.seconds / 60);
+      tc.seconds = tc.seconds - tc.minutes * 60;
+      if (tc.minutes > 59) {
+        tc.hours = Math.floor(tc.minutes / 60);
+        tc.minutes = tc.minutes - tc.hours * 60;
+      }
+    }
+    return tc;
   }
   
 };
@@ -140,8 +188,9 @@ GLP.TimelineControl = Class.create({
     document.observe('mouseup',    this.handleRelease.bind(this));
     
     this.playpause.observe('click', this.pressPlayPause.bind(this));
+    this.timecodeObserver = this.checkTimecode.bind(this);
     
-    this.totalTime = { hours: 24, minutes: 0, decimal: 24.0 };
+    this.waitForVideoMetadata();
   },
   
   assign: function(variable, selector, container) {
@@ -153,6 +202,24 @@ GLP.TimelineControl = Class.create({
       throw("SelectorNotFound");
     }
     return this[variable];
+  },
+  
+  waitForVideoMetadata: function() {
+    this.totalDuration = 0; // in seconds
+    // First pass to get any metadata that may have already loaded
+    GLP.Videos.each(this.updateTotalDurationFromVideo.bind(this));
+    document.observe("video:metadataloaded", this.videoMetadataLoaded.bind(this));
+  },
+  
+  videoMetadataLoaded: function(evt) {
+    this.updateTotalDurationFromVideo(evt.element().GLP.Video);
+  },
+  
+  updateTotalDurationFromVideo: function(video) {
+    if (video.metadata && video.metadata.totalDuration > this.totalDuration) {
+      this.totalDuration = video.metadata.totalDuration;
+      console.log("updating total duration to " + this.totalDuration);
+    }
   },
   
   handleGrab: function(evt) {
@@ -186,24 +253,38 @@ GLP.TimelineControl = Class.create({
   },
   
   handleRelease: function(evt) {
-    this.handleGrabbed = false;
+    if (this.handleGrabbed) {
+      this.handleDrag(evt);
+      this.handleGrabbed = false;
+      this.update();
+    }
   },
   
   updateFromAngle: function(angle) {
     this.angle = angle;
     this.elapsed = angle / 360;
+    this.currentTime = {};
+    var d = this.currentTime.decimal  = this.elapsed * this.totalDuration;
+    var h = this.currentTime.hours    = Math.floor(d / 3600);
+    var m = this.currentTime.minutes  = Math.floor(d / 60 - h * 60);
+    var s = this.currentTime.seconds  = Math.floor(d - m * 60 - h * 3600);
     this.update();
   },
   
-  update: function() {
+  update: function(options) {
+    if (typeof(options) === 'undefined') options = {};
+    if (typeof(options.video) === 'undefined') options.video = true;
+    if (typeof(options.digitalTime) === "undefined") options.digitalTime = true;
     this.handle.setStyle({"-webkit-transform": "rotate(" + this.angle + "deg)"});
     this.handle.style.setProperty("-moz-transform", "rotate(" + this.angle + "deg)", "");
     this.changeProgress();
-    this.changeDigitalTime();
+    if (options.digitalTime) this.changeDigitalTime();
     
-    GLP.Videos.each(function(video) {
-      video.seek({hours: this.currentTime.hours, minutes: this.currentTime.minutes});
-    }.bind(this));
+    if (!this.handleGrabbed && options.video) {
+      GLP.Videos.each(function(video) {
+        video.seek(this.currentTime);
+      }.bind(this));
+    }
   },
   
   changeProgress: function() {
@@ -240,26 +321,37 @@ GLP.TimelineControl = Class.create({
   },
   
   changeDigitalTime: function() {
-    this.currentTime = {};
-    var d = this.currentTime.decimal  = this.elapsed * this.totalTime.decimal;
-    var h = this.currentTime.hours    = Math.floor(d);
-    var dm = (d - h) * 60;
-    var m = this.currentTime.minutes  = Math.floor(dm);
-    var s = this.currentTime.seconds  = Math.round((dm - m) * 60);
-    
-    this.digitalTime.innerHTML = h.toPaddedString(2) + ":" + m.toPaddedString(2) +
-      ":" + s.toPaddedString(2);
+    this.digitalTime.innerHTML = this.currentTime.hours.toPaddedString(2) + 
+      ":" + this.currentTime.minutes.toPaddedString(2) +
+      ":" + this.currentTime.seconds.toPaddedString(2);
   },
   
   pressPlayPause: function(evt) {
     evt.stop();
     GLP.Videos.each(function(video) {
       if (video.togglePlay() === "playing") {
+        this.playing = true;
         this.playpause.select("img").first().src = "images/pause.png";
+        this.observeVideoProgress();
       } else {
         this.playpause.select("img").first().src = "images/play.png";
+        this.playing = false;
       }
     }.bind(this));
+  },
+  
+  checkTimecode: function() {
+    if (!this.handleGrabbed) {
+      var t = this.currentTime = GLP.Videos.first().timecode();
+      this.elapsed = t.decimal / this.totalDuration;
+      this.angle = this.elapsed * 360;
+      this.update({ video: false });
+    }
+    if (this.playing) window.setTimeout(this.timecodeObserver, 200);
+  },
+  
+  observeVideoProgress: function() {
+    window.setTimeout(this.timecodeObserver, 200);
   }
   
 });
