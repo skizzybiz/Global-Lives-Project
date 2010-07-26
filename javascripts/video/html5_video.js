@@ -6,6 +6,7 @@ GLP.Video.HTML5 = {
     console.log(this.metadata_uri);
     new Ajax.Request(this.metadata_uri, {
       method: "get",
+      evalJSON: "force",
       onSuccess: this.metadataRequestSuccess.bind(this),
       onFailure: this.metadataRequestFailure.bind(this)
     });

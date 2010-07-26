@@ -88,6 +88,7 @@ GLP.Video.HTML5 = {
     console.log(this.metadata_uri);
     new Ajax.Request(this.metadata_uri, {
       method: "get",
+      evalJSON: "force",
       onSuccess: this.metadataRequestSuccess.bind(this),
       onFailure: this.metadataRequestFailure.bind(this)
     });
@@ -99,7 +100,6 @@ GLP.Video.HTML5 = {
     this.metadata.segments.each(function(segment) {
       segment.start = start;
       segment.end = start + segment.duration;
-      console.log("segment: " + segment.start + " - " + segment.end);
       start += segment.duration;
     });
     this.container.fire("video:metadataloaded");
@@ -135,6 +135,7 @@ GLP.Video.HTML5 = {
     if (typeof(time.seconds)      === 'undefined') time.seconds       = 0;
     if (typeof(time.milliseconds) === 'undefined') time.milliseconds  = 0;
     var seconds = time.hours * 3600 + time.minutes * 60 + time.seconds + time.milliseconds;
+    // TODO: Load and seek to the correct video using metadata
     this.video.currentTime = seconds % this.video.duration;
   },
   
