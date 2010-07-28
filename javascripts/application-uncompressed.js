@@ -102,9 +102,17 @@ GLP.Video.HTML5 = {
       segment.end = start + segment.duration;
       start += segment.duration;
     });
+    this.metadata.totalDuration = this.metadata.segments.last().end;
     this.container.fire("video:metadataloaded");
-    this.video = new Element("video", { src: this.metadata.segments[0].uri });
+    
+    this.currentVideo = this.metadata.segments.first();
+    this.video = new Element("video", { src: this.currentVideo.uri });
+    this.video.observe("error", this.videoError.bind(this));
     this.container.insert(this.video);
+  },
+  
+  videoError: function(evt) {
+    console.log("video load error: " + this.video.error.code);
   },
   
   metadataRequestFailure: function(response) {
@@ -134,9 +142,37 @@ GLP.Video.HTML5 = {
     if (typeof(time.minutes)      === 'undefined') time.minutes       = 0;
     if (typeof(time.seconds)      === 'undefined') time.seconds       = 0;
     if (typeof(time.milliseconds) === 'undefined') time.milliseconds  = 0;
-    var seconds = time.hours * 3600 + time.minutes * 60 + time.seconds + time.milliseconds;
-    // TODO: Load and seek to the correct video using metadata
-    this.video.currentTime = seconds % this.video.duration;
+    time.decimal = time.hours * 3600 + time.minutes * 60 + time.seconds + time.milliseconds;
+    var seekCallback = this.seekCallback.bind(this, time);
+    this.loadVideoForTime(time, seekCallback);
+  },
+  
+  seekCallback: function(time, evt) {
+    this.video.currentTime = time.decimal - this.currentVideo.start;
+    console.log("seekCallback: set currentTime to " + (time.decimal - this.currentVideo.start));
+  },
+  
+  loadVideoForTime: function(time, callback) {
+    var segment = this.currentVideo;
+    var d = time.decimal;
+    if (segment.start <= d && segment.end > d) {
+      callback(time);
+      return;
+    }
+    console.log("loadVideoForTime: loading new video segment");
+    for (var i = 0; segment = this.metadata.segments[i]; i++) {
+      if (segment.end > d) break;
+    }
+    if (segment.end < d) throw "Unable to find a segment for timecode " + d;
+    this.currentVideo = segment;
+    this.playing = !this.video.paused;
+    this.video.src = segment.uri;
+    this.video.observe("loadedmetadata", function(callback, evt) {
+      callback();
+      if (this.playing) this.video.play();
+      this.video.stopObserving("loadedmetadata");
+      console.log("Finished swapping video");
+    }.bind(this, callback));
   },
   
   setPlaybackRate: function(rate) {
@@ -145,7 +181,7 @@ GLP.Video.HTML5 = {
   
   timecode: function() {
     // console.log("HTML5 Video timecode()");
-    var t = this.video.currentTime;
+    var t = this.video.currentTime + this.currentVideo.start;
     var tc = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0, decimal: t };
     tc.seconds = Math.floor(t);
     tc.milliseconds = t - tc.seconds;
