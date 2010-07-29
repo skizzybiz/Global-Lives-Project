@@ -108,11 +108,30 @@ GLP.Video.HTML5 = {
     this.currentVideo = this.metadata.segments.first();
     this.video = new Element("video", { src: this.currentVideo.uri });
     this.video.observe("error", this.videoError.bind(this));
+    this.video.observe("ended", this.videoSegmentEnded.bind(this));
     this.container.insert(this.video);
   },
   
   videoError: function(evt) {
     console.log("video load error: " + this.video.error.code);
+  },
+  
+  videoSegmentEnded: function(evt) {
+    var nextIndex;
+    var segment;
+    for (var i = 0; segment = this.metadata.segments[i]; i++) {
+      if (segment == this.currentVideo) {
+        nextIndex = (i + 1) % this.metadata.segments.length;
+        segment = this.metadata.segments[nextIndex];
+        console.log("Swapping segment " + i + " for segment " + nextIndex);
+        break;
+      }
+    }
+    if (!segment) {
+      console.log("videoSegmentEnded: unable to find next segment, switching to first segment");
+      segment = this.metadata.segments[0];
+    }
+    this.swapVideoSegment(segment);
   },
   
   metadataRequestFailure: function(response) {
@@ -164,11 +183,16 @@ GLP.Video.HTML5 = {
       if (segment.end > d) break;
     }
     if (segment.end < d) throw "Unable to find a segment for timecode " + d;
+    this.swapVideoSegment(segment, callback);
+  },
+  
+  swapVideoSegment: function(segment, callback) {
+    console.log("swapVideoSegment: loading " + segment.uri);
     this.currentVideo = segment;
     this.playing = !this.video.paused;
     this.video.src = segment.uri;
     this.video.observe("loadedmetadata", function(callback, evt) {
-      callback();
+      if (callback) callback();
       if (this.playing) this.video.play();
       this.video.stopObserving("loadedmetadata");
       console.log("Finished swapping video");
