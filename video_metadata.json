@@ -1,6 +1,9 @@
 {
   "segments": [
     { "uri": "1500-1515-320p.mp4", "duration": 900.0 },
+    { "uri": "1515-1530-320p.mp4", "duration": 900.0 },
+    { "uri": "1530-1545-320p.mp4", "duration": 900.0 },
+    { "uri": "1545-1600-320p.mp4", "duration": 900.0 },
     { "uri": "sample.mp4", "duration": 337.0 },
     { "uri": "sample.mp4", "duration": 337.0 },
     { "uri": "sample.mp4", "duration": 337.0 },
