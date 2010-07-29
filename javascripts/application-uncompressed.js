@@ -83,6 +83,9 @@ document.observe('dom:loaded', function() {
 
 
 GLP.Video.HTML5 = {
+  
+  // Methods that implement the GLP.Video template
+  
   setup: function() {
     this.metadata_uri = this.container.getAttribute("data-html5");
     console.log(this.metadata_uri);
@@ -92,50 +95,6 @@ GLP.Video.HTML5 = {
       onSuccess: this.metadataRequestSuccess.bind(this),
       onFailure: this.metadataRequestFailure.bind(this)
     });
-  },
-  
-  metadataRequestSuccess: function(response) {
-    this.metadata = response.responseJSON;
-    var start = 0;
-    this.metadata.segments.each(function(segment) {
-      segment.start = start;
-      segment.end = start + segment.duration;
-      start += segment.duration;
-    });
-    this.metadata.totalDuration = this.metadata.segments.last().end;
-    this.container.fire("video:metadataloaded");
-    
-    this.currentVideo = this.metadata.segments.first();
-    this.video = new Element("video", { src: this.currentVideo.uri });
-    this.video.observe("error", this.videoError.bind(this));
-    this.video.observe("ended", this.videoSegmentEnded.bind(this));
-    this.container.insert(this.video);
-  },
-  
-  videoError: function(evt) {
-    console.log("video load error: " + this.video.error.code);
-  },
-  
-  videoSegmentEnded: function(evt) {
-    var nextIndex;
-    var segment;
-    for (var i = 0; segment = this.metadata.segments[i]; i++) {
-      if (segment == this.currentVideo) {
-        nextIndex = (i + 1) % this.metadata.segments.length;
-        segment = this.metadata.segments[nextIndex];
-        console.log("Swapping segment " + i + " for segment " + nextIndex);
-        break;
-      }
-    }
-    if (!segment) {
-      console.log("videoSegmentEnded: unable to find next segment, switching to first segment");
-      segment = this.metadata.segments[0];
-    }
-    this.swapVideoSegment(segment);
-  },
-  
-  metadataRequestFailure: function(response) {
-    window.alert("Failed to load video: " + response.responseText);
   },
   
   play: function() {
@@ -164,6 +123,73 @@ GLP.Video.HTML5 = {
     time.decimal = time.hours * 3600 + time.minutes * 60 + time.seconds + time.milliseconds;
     var seekCallback = this.seekCallback.bind(this, time);
     this.loadVideoForTime(time, seekCallback);
+  },
+  
+  setPlaybackRate: function(rate) {
+    this.video.playbackRate = rate;
+  },
+  
+  timecode: function() {
+    // console.log("HTML5 Video timecode()");
+    var t = this.video.currentTime + this.currentVideo.start;
+    var tc = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0, decimal: t };
+    tc.seconds = Math.floor(t);
+    tc.milliseconds = t - tc.seconds;
+    if (tc.seconds > 59) {
+      tc.minutes = Math.floor(tc.seconds / 60);
+      tc.seconds = tc.seconds - tc.minutes * 60;
+      if (tc.minutes > 59) {
+        tc.hours = Math.floor(tc.minutes / 60);
+        tc.minutes = tc.minutes - tc.hours * 60;
+      }
+    }
+    return tc;
+  },
+  
+  // Utility methods
+  
+  metadataRequestSuccess: function(response) {
+    this.metadata = response.responseJSON;
+    var start = 0;
+    this.metadata.segments.each(function(segment) {
+      segment.start = start;
+      segment.end = start + segment.duration;
+      start += segment.duration;
+    });
+    this.metadata.totalDuration = this.metadata.segments.last().end;
+    this.container.fire("video:metadataloaded");
+    
+    this.currentVideo = this.metadata.segments.first();
+    this.video = new Element("video", { src: this.currentVideo.uri });
+    this.video.observe("error", this.videoError.bind(this));
+    this.video.observe("ended", this.videoSegmentEnded.bind(this));
+    this.container.insert(this.video);
+  },
+  
+  metadataRequestFailure: function(response) {
+    window.alert("Failed to load video: " + response.responseText);
+  },
+  
+  videoError: function(evt) {
+    console.log("video load error: " + this.video.error.code);
+  },
+  
+  videoSegmentEnded: function(evt) {
+    var nextIndex;
+    var segment;
+    for (var i = 0; segment = this.metadata.segments[i]; i++) {
+      if (segment == this.currentVideo) {
+        nextIndex = (i + 1) % this.metadata.segments.length;
+        segment = this.metadata.segments[nextIndex];
+        console.log("Swapping segment " + i + " for segment " + nextIndex);
+        break;
+      }
+    }
+    if (!segment) {
+      console.log("videoSegmentEnded: unable to find next segment, switching to first segment");
+      segment = this.metadata.segments[0];
+    }
+    this.swapVideoSegment(segment);
   },
   
   seekCallback: function(time, evt) {
@@ -197,27 +223,6 @@ GLP.Video.HTML5 = {
       this.video.stopObserving("loadedmetadata");
       console.log("Finished swapping video");
     }.bind(this, callback));
-  },
-  
-  setPlaybackRate: function(rate) {
-    this.video.playbackRate = rate;
-  },
-  
-  timecode: function() {
-    // console.log("HTML5 Video timecode()");
-    var t = this.video.currentTime + this.currentVideo.start;
-    var tc = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0, decimal: t };
-    tc.seconds = Math.floor(t);
-    tc.milliseconds = t - tc.seconds;
-    if (tc.seconds > 59) {
-      tc.minutes = Math.floor(tc.seconds / 60);
-      tc.seconds = tc.seconds - tc.minutes * 60;
-      if (tc.minutes > 59) {
-        tc.hours = Math.floor(tc.minutes / 60);
-        tc.minutes = tc.minutes - tc.hours * 60;
-      }
-    }
-    return tc;
   }
   
 };
