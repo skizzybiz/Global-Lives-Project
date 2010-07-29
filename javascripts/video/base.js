@@ -44,6 +44,28 @@ GLP.Video = Class.create({
   // 'decimal' is the decimal time in seconds
   timecode: function() {
     throw "MethodNotImplemented";
+  },
+  
+  // Utility methods for subclasses
+  
+  showMessage: function(message) {
+    console.log("Showing message '" + message + "'");
+    this.clearMessage();
+    this.message = new Element("div", {"class": "message"});
+    this.message.innerHTML = message;
+    this.message.hide();
+    this.container.insert(this.message);
+    window.setTimeout(this._adjustMessagePosition, 20);
+  },
+  
+  clearMessage: function() {
+    if (this.message) this.message.remove();
+  },
+  
+  _adjustMessagePosition: function() {
+    if (!this.message) return;
+    // this.message
+    this.message.show();
   }
   
 });

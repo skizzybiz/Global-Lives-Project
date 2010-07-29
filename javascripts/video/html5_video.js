@@ -80,6 +80,8 @@ GLP.Video.HTML5 = {
     this.currentVideo = this.metadata.segments.first();
     this.video = new Element("video", { src: this.currentVideo.uri });
     this.video.observe("error", this.videoError.bind(this));
+    this.video.observe("waiting", this.videoSegmentWaiting.bind(this));
+    this.video.observe("canplay", this.videoSegmentCanPlay.bind(this));
     this.video.observe("ended", this.videoSegmentEnded.bind(this));
     this.container.insert(this.video);
   },
@@ -90,6 +92,14 @@ GLP.Video.HTML5 = {
   
   videoError: function(evt) {
     console.log("video load error: " + this.video.error.code);
+  },
+  
+  videoSegmentWaiting: function(evt) {
+    // this.showMessage("Loading");
+  },
+  
+  videoSegmentCanPlay: function(evt) {
+    // this.clearMessage();
   },
   
   videoSegmentEnded: function(evt) {

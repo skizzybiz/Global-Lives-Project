@@ -126,3 +126,29 @@
 .GLP.TimelineControl .assets {
   display: none;
 }
+
+/**************************************************/
+/* Video container */
+
+.GLP.Video {
+  position: relative;
+}
+
+.GLP.Video video {
+  -webkit-box-shadow: 0 0.3em 0.5em rgba(0,0,0, 0.5);
+  -moz-box-shadow:    0 0.3em 0.5em rgba(0,0,0, 0.5);
+}
+
+.GLP.Video .message {
+  padding: 1em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 75%;
+  background: rgba(0,0,0, 0.5);
+  color: white;
+  font-size: 1.3em;
+  font-weight: bold;
+  -webkit-border-radius:  0.6em;
+  -moz-border-radius:     0.6em;
+}
