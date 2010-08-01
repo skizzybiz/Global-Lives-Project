@@ -2,7 +2,8 @@
 /* Clock controls */
 
 .GLP.TimelineControl.clock {
-  position: relative;
+  position: absolute;
+  right: 1em;
   width: 10em;
 /*  height: 15em;*/
   
@@ -131,7 +132,7 @@
 /* Video container */
 
 .GLP.Video {
-  position: relative;
+  position: absolute;
 }
 
 .GLP.Video video {
@@ -142,8 +143,8 @@
 .GLP.Video .message {
   padding: 1em;
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   max-width: 75%;
   background: rgba(0,0,0, 0.5);
   color: white;
@@ -151,4 +152,10 @@
   font-weight: bold;
   -webkit-border-radius:  0.6em;
   -moz-border-radius:     0.6em;
+  opacity: 1.0;
+  -webkit-transition: opacity 0.5s linear;
+}
+
+.GLP.Video .message.hidden {
+  opacity: 0.0;
 }

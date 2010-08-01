@@ -169,10 +169,12 @@ GLP.TimelineControl = Class.create({
       if (video.togglePlay() === "playing") {
         this.playing = true;
         this.playpause.select("img").first().src = "images/pause.png";
+        video.showMessage('<img src="images/play.png">');
         this.observeVideoProgress();
       } else {
         this.playpause.select("img").first().src = "images/play.png";
         this.playing = false;
+        video.showMessage('<img src="images/pause.png">');
       }
     }.bind(this));
   },

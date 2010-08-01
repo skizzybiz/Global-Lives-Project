@@ -76,19 +76,37 @@ GLP.Video = Class.create({
     this.clearMessage();
     this.message = new Element("div", {"class": "message"});
     this.message.innerHTML = message;
-    this.message.hide();
+    this.message.style.visibility = "hidden";
     this.container.insert(this.message);
-    window.setTimeout(this._adjustMessagePosition, 20);
+    window.setTimeout(this._adjustMessagePosition.bind(this), 20);
+    window.setTimeout(this._clearMessageTimeout.bind(this), 200);
   },
   
   clearMessage: function() {
-    if (this.message) this.message.remove();
+    if (this.message) {
+      this.message.remove();
+      this.message = null;
+    }
   },
   
   _adjustMessagePosition: function() {
     if (!this.message) return;
-    // this.message
-    this.message.show();
+    var layout = this.message.getLayout();
+    var width  = layout.get('width') + layout.get('padding-left') + layout.get('padding-right');
+    var height = layout.get('height') + layout.get('padding-top') + layout.get('padding-bottom');
+    this.message.setStyle({
+      visibility: "visible",
+      left:       "50%",
+      top:        "50%",
+      marginLeft: "-" + Math.round(width / 2) + "px",
+      marginTop:  "-" + Math.round(height / 2) + "px"
+    });
+  },
+  
+  _clearMessageTimeout: function() {
+    if (!this.message) return;
+    this.message.addClassName('hidden');
+    window.setTimeout(this.clearMessage.bind(this), 800);
   }
   
 });
@@ -430,10 +448,12 @@ GLP.TimelineControl = Class.create({
       if (video.togglePlay() === "playing") {
         this.playing = true;
         this.playpause.select("img").first().src = "images/pause.png";
+        video.showMessage('<img src="images/play.png">');
         this.observeVideoProgress();
       } else {
         this.playpause.select("img").first().src = "images/play.png";
         this.playing = false;
+        video.showMessage('<img src="images/pause.png">');
       }
     }.bind(this));
   },
