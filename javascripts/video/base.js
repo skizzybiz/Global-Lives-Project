@@ -48,7 +48,7 @@ GLP.Video = Class.create({
   
   // Utility methods for subclasses
   
-  showMessage: function(message) {
+  showMessage: function(message, timeout) {
     console.log("Showing message '" + message + "'");
     this.clearMessage();
     this.message = new Element("div", {"class": "message"});
@@ -56,14 +56,33 @@ GLP.Video = Class.create({
     this.message.style.visibility = "hidden";
     this.container.insert(this.message);
     window.setTimeout(this._adjustMessagePosition.bind(this), 20);
-    window.setTimeout(this._clearMessageTimeout.bind(this), 200);
+    if (timeout) {
+      if (!this.messageTimeouts) this.messageTimeouts = [];
+      var f = this._clearMessageTimeout.bind(this);
+      this.messageTimeouts.push(f);
+      window.setTimeout(f, timeout);
+    }
+  },
+  
+  flashMessage: function(message) {
+    this.showMessage(message, 200);
+  },
+  
+  updateMessage: function(message) {
+    if (!this.message) return;
+    this.message.innerHTML = message;
   },
   
   clearMessage: function() {
-    if (this.message) {
-      this.message.remove();
-      this.message = null;
+    if (!this.message) return;
+    if (this.messageTimeouts) {
+      this.messageTimeouts.each(function(f) {
+        window.clearTimeout(f);
+      });
+      this.messageTimeouts = [];
     }
+    this.message.remove();
+    this.message = null;
   },
   
   _adjustMessagePosition: function() {
@@ -83,7 +102,9 @@ GLP.Video = Class.create({
   _clearMessageTimeout: function() {
     if (!this.message) return;
     this.message.addClassName('hidden');
-    window.setTimeout(this.clearMessage.bind(this), 800);
+    var f = this.clearMessage.bind(this);
+    this.messageTimeouts.push(f);
+    window.setTimeout(f, 800);
   }
   
 });

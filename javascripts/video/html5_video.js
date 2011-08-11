@@ -82,6 +82,7 @@ GLP.Video.HTML5 = {
     this.video.observe("error", this.videoError.bind(this));
     this.video.observe("waiting", this.videoSegmentWaiting.bind(this));
     this.video.observe("canplay", this.videoSegmentCanPlay.bind(this));
+    // this.video.observe("canplaythrough", this.videoSegmentCanPlayThrough.bind(this));
     this.video.observe("ended", this.videoSegmentEnded.bind(this));
     this.container.insert(this.video);
   },
@@ -95,12 +96,44 @@ GLP.Video.HTML5 = {
   },
   
   videoSegmentWaiting: function(evt) {
-    // this.showMessage("Loading");
+    if (this.waiting) return;
+    console.log("video waiting");
+    this.waiting = true;
+    this.playing = !this.video.paused;
+    if (this.playing) {
+      this.video.pause();
+      console.log("pausing video");
+    }
+    this.waitingStartTime = new Date();
+    this.showMessage("Loading...");
   },
   
   videoSegmentCanPlay: function(evt) {
-    // this.clearMessage();
+    console.log("video can play");
+    if (!this.waiting) return;
+    if (!this.waitingStartTime) return;
+    var timeout = (new Date() - this.waitingStartTime);
+    console.log("waiting " + (timeout / 1000) + " seconds");
+    if (this.resumeTimeout) window.clearTimeout(this.resumeTimeout);
+    this.resumeTimeout = this._resumeVideo.bind(this);
+    window.setTimeout(this.resumeTimeout, timeout);
   },
+  
+  _resumeVideo: function() {
+    this.waiting = false;
+    this.clearMessage();
+    this.waitingStartTime = null;
+    this.resumeTimeout = null;
+    if (this.playing) {
+      this.video.play();
+      console.log("resuming");
+    }
+  },
+  
+  // videoSegmentCanPlayThrough: function(evt) {
+  //   console.log("video can play through");
+  //   this.clearMessage();
+  // },
   
   videoSegmentEnded: function(evt) {
     var nextIndex;
@@ -144,6 +177,7 @@ GLP.Video.HTML5 = {
     console.log("swapVideoSegment: loading " + segment.uri);
     this.currentVideo = segment;
     this.playing = !this.video.paused;
+    this.showMessage("Loading...");
     this.video.src = segment.uri;
     this.video.observe("loadedmetadata", function(callback, evt) {
       if (callback) callback();

@@ -71,7 +71,7 @@ GLP.Video = Class.create({
   
   // Utility methods for subclasses
   
-  showMessage: function(message) {
+  showMessage: function(message, timeout) {
     console.log("Showing message '" + message + "'");
     this.clearMessage();
     this.message = new Element("div", {"class": "message"});
@@ -79,14 +79,33 @@ GLP.Video = Class.create({
     this.message.style.visibility = "hidden";
     this.container.insert(this.message);
     window.setTimeout(this._adjustMessagePosition.bind(this), 20);
-    window.setTimeout(this._clearMessageTimeout.bind(this), 200);
+    if (timeout) {
+      if (!this.messageTimeouts) this.messageTimeouts = [];
+      var f = this._clearMessageTimeout.bind(this);
+      this.messageTimeouts.push(f);
+      window.setTimeout(f, timeout);
+    }
+  },
+  
+  flashMessage: function(message) {
+    this.showMessage(message, 200);
+  },
+  
+  updateMessage: function(message) {
+    if (!this.message) return;
+    this.message.innerHTML = message;
   },
   
   clearMessage: function() {
-    if (this.message) {
-      this.message.remove();
-      this.message = null;
+    if (!this.message) return;
+    if (this.messageTimeouts) {
+      this.messageTimeouts.each(function(f) {
+        window.clearTimeout(f);
+      });
+      this.messageTimeouts = [];
     }
+    this.message.remove();
+    this.message = null;
   },
   
   _adjustMessagePosition: function() {
@@ -106,7 +125,9 @@ GLP.Video = Class.create({
   _clearMessageTimeout: function() {
     if (!this.message) return;
     this.message.addClassName('hidden');
-    window.setTimeout(this.clearMessage.bind(this), 800);
+    var f = this.clearMessage.bind(this);
+    this.messageTimeouts.push(f);
+    window.setTimeout(f, 800);
   }
   
 });
@@ -204,6 +225,7 @@ GLP.Video.HTML5 = {
     this.video.observe("error", this.videoError.bind(this));
     this.video.observe("waiting", this.videoSegmentWaiting.bind(this));
     this.video.observe("canplay", this.videoSegmentCanPlay.bind(this));
+    // this.video.observe("canplaythrough", this.videoSegmentCanPlayThrough.bind(this));
     this.video.observe("ended", this.videoSegmentEnded.bind(this));
     this.container.insert(this.video);
   },
@@ -217,12 +239,44 @@ GLP.Video.HTML5 = {
   },
   
   videoSegmentWaiting: function(evt) {
-    // this.showMessage("Loading");
+    if (this.waiting) return;
+    console.log("video waiting");
+    this.waiting = true;
+    this.playing = !this.video.paused;
+    if (this.playing) {
+      this.video.pause();
+      console.log("pausing video");
+    }
+    this.waitingStartTime = new Date();
+    this.showMessage("Loading...");
   },
   
   videoSegmentCanPlay: function(evt) {
-    // this.clearMessage();
+    console.log("video can play");
+    if (!this.waiting) return;
+    if (!this.waitingStartTime) return;
+    var timeout = (new Date() - this.waitingStartTime);
+    console.log("waiting " + (timeout / 1000) + " seconds");
+    if (this.resumeTimeout) window.clearTimeout(this.resumeTimeout);
+    this.resumeTimeout = this._resumeVideo.bind(this);
+    window.setTimeout(this.resumeTimeout, timeout);
   },
+  
+  _resumeVideo: function() {
+    this.waiting = false;
+    this.clearMessage();
+    this.waitingStartTime = null;
+    this.resumeTimeout = null;
+    if (this.playing) {
+      this.video.play();
+      console.log("resuming");
+    }
+  },
+  
+  // videoSegmentCanPlayThrough: function(evt) {
+  //   console.log("video can play through");
+  //   this.clearMessage();
+  // },
   
   videoSegmentEnded: function(evt) {
     var nextIndex;
@@ -266,6 +320,7 @@ GLP.Video.HTML5 = {
     console.log("swapVideoSegment: loading " + segment.uri);
     this.currentVideo = segment;
     this.playing = !this.video.paused;
+    this.showMessage("Loading...");
     this.video.src = segment.uri;
     this.video.observe("loadedmetadata", function(callback, evt) {
       if (callback) callback();
@@ -448,12 +503,12 @@ GLP.TimelineControl = Class.create({
       if (video.togglePlay() === "playing") {
         this.playing = true;
         this.playpause.select("img").first().src = "images/pause.png";
-        video.showMessage('<img src="images/play.png">');
+        video.flashMessage('<img src="images/play.png">');
         this.observeVideoProgress();
       } else {
         this.playpause.select("img").first().src = "images/play.png";
         this.playing = false;
-        video.showMessage('<img src="images/pause.png">');
+        video.flashMessage('<img src="images/pause.png">');
       }
     }.bind(this));
   },
